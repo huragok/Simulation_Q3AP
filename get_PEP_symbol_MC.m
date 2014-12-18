@@ -91,5 +91,5 @@ function r = crandn(mu, sigma2, M)
 %               random variables
 % _____________________________________________________________________________
 
-r = mu + sqrt(sigma2 / 2) * (randn(M, 1) + 1j * randn(M * 1));
+r = mu + sqrt(sigma2 / 2) * (randn(M, 1) + 1j * randn(M, 1));
 end

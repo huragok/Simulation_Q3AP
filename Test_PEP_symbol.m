@@ -24,27 +24,27 @@ symbols_base = X(idxs([1, 3, 5], :)); % The actually transmitted 3 symbols
 symbols_alt = X(idxs([2, 4, 6], :)); % The alternative 3 symbols
 
 % Randomly pick a pair of symbols
-symbol_base = symbols_base(:, 17);
-symbol_alt = symbols_alt(:, 17);
+symbol_base = symbols_base(:, 1);
+symbol_alt = symbols_alt(:, 1);
 
 %% 3. Channel settings (Let us try AWGN first)
 mu_h = [1; 1; 1];
 sigma2_h = [0; 0; 0];
 sigma2_eps = [0; 0; 0];
 Eb2N0 = 5; % Eb/N0 in dB
-sigma2_v = pwr / Nbps * 10 ^ (Eb2N0 / 10) *[1; 1];
+sigma2_v = pwr / Nbps * 10 ^ (Eb2N0 / 10);
 
 %% 4. Try MGF approximation method
 N = 64;
 xi = 1 / 4;
 tic;
-p = get_PEP_symbol(x, y, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi);
+p = get_PEP_symbol(symbol_base, symbol_alt, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi);
 toc;
 disp(['P{delta < 0} = ', num2str(p)])
 
 %% 5. Try Monte-Carlo Simulation method
-M = 100;
+M = 10000;
 tic;
-p_MC = get_PEP_symbol_MC(x, y, mu_h, sigma2_h, sigma2_eps, sigma2_v, M);
+p_MC = get_PEP_symbol_MC(symbol_base, symbol_alt, mu_h, sigma2_h, sigma2_eps, sigma2_v, M);
 toc;
 disp(['P{delta < 0} = ', num2str(p_MC), ' (Monte-Carlo method)'])

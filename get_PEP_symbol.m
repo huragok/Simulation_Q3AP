@@ -70,13 +70,13 @@ function psi = get_Psi_Gaussian(omega, mu, R, A)
 % 		
 %       mu:         d-by-1 vector, the mean value of the Gaussian variable
 %                   vector z
-%       R:      d-by-d positive semi-definite matrix, the covariance
+%       R:          d-by-d positive semi-definite matrix, the covariance
 %                   matrix of the Gaussian variable vector z
 %       A:          a d-by-d Hermitian matrix
 %	Outputs:
 %		psi:		N-by-1 vector, a sequence of MGF values evaluated
 % _____________________________________________________________________________
-
+N = length(omega);
 d = length(mu); % Size of the Gaussian random vector
 psi = zeros(N, 1);
 for n = 1 : N
