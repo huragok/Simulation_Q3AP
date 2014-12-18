@@ -1,5 +1,5 @@
 function p = get_PEP_symbol(x, y, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
-%   p = get_PEP_symbol(x, y, mu_h, sigma2_h, sigma2_eps, sigma2_v)
+%   p = get_PEP_symbol(x, y, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
 %   Compute the pairwise error probability between two set of symbols in
 %   the realy - HARQ model with Rician channel and imperfect CSIR
 % _____________________________________________________________________________
