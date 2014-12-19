@@ -34,9 +34,9 @@ symbols_alt = num2cell(X(idxs([2, 4, 6], :)), 1); % The alternative 3 symbols
 % sigma2_eps = [0; 0; 0];
 
 % Rayleigh fading channel with perfect CSIR
-% mu_h = [0; 0; 0];
-% sigma2_h = [1; 1; 1];
-% sigma2_eps = [0; 0; 0];
+mu_h = [0; 0; 0];
+sigma2_h = [1; 1; 1];
+sigma2_eps = [0; 0; 0];
 
 % Rician fading channel with perfect CSIR
 % K = 10;
@@ -50,10 +50,10 @@ symbols_alt = num2cell(X(idxs([2, 4, 6], :)), 1); % The alternative 3 symbols
 % sigma2_eps = [0.2; 0.2; 0.2];
 
 % Rician fading channel with perfect CSIR
-K = 10;
-mu_h = sqrt(K / (K + 1)) * ones(3, 1);
-sigma2_h = 1 / (K + 1) * ones(3, 1);
-sigma2_eps = [0.2; 0.2; 0.2];
+% K = 10;
+% mu_h = sqrt(K / (K + 1)) * ones(3, 1);
+% sigma2_h = 1 / (K + 1) * ones(3, 1);
+% sigma2_eps = [0.2; 0.2; 0.2];
 
 Eb2N0 = 5; % Eb/N0 in dB
 sigma2_v = pwr / Nbps * 10 ^ (Eb2N0 / 10);
@@ -83,15 +83,20 @@ toc;
 [PEP_MGF, I] = sort(PEP_MGF);
 PEP_MC = PEP_MC(I);
 
-PEP_MFG_sorted = PEP_MGF(~isnan(PEP_MGF));
+PEP_MGF_sorted = PEP_MGF(~isnan(PEP_MGF));
 PEP_MC_sorted = PEP_MC(~isnan(PEP_MC));
 
-l = length(PEP_MFG_sorted);
+l = length(PEP_MGF_sorted);
 
 figure;
-plot(1 : l, PEP_MFG_sorted, 'b-', 'lineWidth', 2), hold on;
-plot(1 : l, PEP_MFG_sorted - PEP_MC_sorted, 'r:', 'lineWidth', 2), hold on;
+plot(1 : l, PEP_MGF_sorted, 'b-', 'lineWidth', 2), hold on;
+plot(1 : l, PEP_MGF_sorted - PEP_MC_sorted, 'r:', 'lineWidth', 2), hold on;
 set(gca, 'fontsize', 16), xlabel('Index'), ylabel('PEP'), grid on;
-legend('MGF', 'MGF - FC')
+legend('MGF', 'MGF - MC');
+
+[PEP_MGF_unique, count] = unique_tol(PEP_MGF_sorted, 0.000001);
+disp(['Total number of unique PEP values is: ', num2str(length(PEP_MGF_unique))]);
+disp('Value    Count');
+disp([PEP_MGF_unique', count']);
 
 
