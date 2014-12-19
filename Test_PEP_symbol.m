@@ -28,15 +28,15 @@ symbols_alt = num2cell(X(idxs([2, 4, 6], :)), 1); % The alternative 3 symbols
 % symbol_alt = symbols_alt(:, 1);
 
 %% 3. Channel settings (Let us try AWGN first)
-% AWGN channel
+%AWGN channel
 % mu_h = [1; 1; 1];
 % sigma2_h = [0; 0; 0];
 % sigma2_eps = [0; 0; 0];
 
 % Rayleigh fading channel with perfect CSIR
-mu_h = [0; 0; 0];
-sigma2_h = [1; 1; 1];
-sigma2_eps = [0; 0; 0];
+% mu_h = [0; 0; 0];
+% sigma2_h = [1; 1; 1];
+% sigma2_eps = [0; 0; 0];
 
 % Rician fading channel with perfect CSIR
 % K = 10;
@@ -50,10 +50,10 @@ sigma2_eps = [0; 0; 0];
 % sigma2_eps = [0.2; 0.2; 0.2];
 
 % Rician fading channel with perfect CSIR
-% K = 10;
-% mu_h = sqrt(K / (K + 1)) * ones(3, 1);
-% sigma2_h = 1 / (K + 1) * ones(3, 1);
-% sigma2_eps = [0.2; 0.2; 0.2];
+K = 10;
+mu_h = sqrt(K / (K + 1)) * ones(3, 1);
+sigma2_h = 1 / (K + 1) * ones(3, 1);
+sigma2_eps = [0.2; 0.2; 0.2];
 
 Eb2N0 = 5; % Eb/N0 in dB
 sigma2_v = pwr / Nbps * 10 ^ (Eb2N0 / 10);
@@ -91,6 +91,7 @@ l = length(PEP_MGF_sorted);
 figure;
 plot(1 : l, PEP_MGF_sorted, 'b-', 'lineWidth', 2), hold on;
 plot(1 : l, PEP_MGF_sorted - PEP_MC_sorted, 'r:', 'lineWidth', 2), hold on;
+ylim([-0.05, 0.3]);
 set(gca, 'fontsize', 16), xlabel('Index'), ylabel('PEP'), grid on;
 legend('MGF', 'MGF - MC');
 
