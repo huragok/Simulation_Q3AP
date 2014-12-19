@@ -58,7 +58,7 @@ sigma2_eps = [0.2; 0.2; 0.2];
 Eb2N0 = 5; % Eb/N0 in dB
 sigma2_v = pwr / Nbps * 10 ^ (Eb2N0 / 10);
 
-%% 4. Compute PEP
+%% 4. Compute PEP for the symbols
 N = 64;
 xi = 1 / 4;
 M = 50000;
@@ -79,25 +79,46 @@ matlabpool close
 
 toc;
 
+%% 5. Compute PEP for the bits
+B = get_n_diff_bits(Nbps);
+PEP_MGF_bit = NaN(1, Q ^ 6); % PEP computed with MGF method
+for q = 1 : Q ^ 6
+    if ~isnan(PEP_MGF(q))
+        PEP_MGF_bit(q) = PEP_MGF(q) * B(idxs_cell{q}(1), idxs_cell{q}(2)) / Nbps;
+    end
+end
+
 %% 5. Visualization
-[PEP_MGF, I] = sort(PEP_MGF);
-PEP_MC = PEP_MC(I);
+% [PEP_MGF, I] = sort(PEP_MGF);
+% PEP_MC = PEP_MC(I);
+% 
+% PEP_MGF_sorted = PEP_MGF(~isnan(PEP_MGF));
+% PEP_MC_sorted = PEP_MC(~isnan(PEP_MC));
+% 
+% l = length(PEP_MGF_sorted);
+% 
+% figure;
+% plot(1 : l, PEP_MGF_sorted, 'b-', 'lineWidth', 2), hold on;
+% plot(1 : l, PEP_MGF_sorted - PEP_MC_sorted, 'r:', 'lineWidth', 2), hold on;
+% ylim([-0.05, 0.3]);
+% set(gca, 'fontsize', 16), xlabel('Index'), ylabel('PEP'), grid on;
+% legend('MGF', 'MGF - MC');
+% 
+% [PEP_MGF_unique, count] = unique_tol(PEP_MGF_sorted, 0.000001);
+% disp(['Total number of unique PEP values is: ', num2str(length(PEP_MGF_unique))]);
+% disp('Value    Count');
+% disp([PEP_MGF_unique', count']);
 
-PEP_MGF_sorted = PEP_MGF(~isnan(PEP_MGF));
-PEP_MC_sorted = PEP_MC(~isnan(PEP_MC));
-
-l = length(PEP_MGF_sorted);
+PEP_MGF_bit = sort(PEP_MGF_bit);
+PEP_MGF_bit_sorted = PEP_MGF_bit(~isnan(PEP_MGF_bit));
+l = length(PEP_MGF_bit_sorted);
 
 figure;
-plot(1 : l, PEP_MGF_sorted, 'b-', 'lineWidth', 2), hold on;
-plot(1 : l, PEP_MGF_sorted - PEP_MC_sorted, 'r:', 'lineWidth', 2), hold on;
-ylim([-0.05, 0.3]);
-set(gca, 'fontsize', 16), xlabel('Index'), ylabel('PEP'), grid on;
-legend('MGF', 'MGF - MC');
+plot(1 : l, PEP_MGF_bit_sorted, 'b-', 'lineWidth', 2), hold on;
+ylim([0, 0.2]);
+set(gca, 'fontsize', 16), xlabel('Index'), ylabel('PEP for bits'), grid on;
 
-[PEP_MGF_unique, count] = unique_tol(PEP_MGF_sorted, 0.000001);
-disp(['Total number of unique PEP values is: ', num2str(length(PEP_MGF_unique))]);
+[PEP_MGF_bit_unique, count] = unique_tol(PEP_MGF_bit_sorted, 0.000001);
+disp(['Total number of unique value of PEP for bit is: ', num2str(length(PEP_MGF_bit_unique))]);
 disp('Value    Count');
-disp([PEP_MGF_unique', count']);
-
-
+disp([PEP_MGF_bit_unique', count']);
