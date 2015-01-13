@@ -69,9 +69,6 @@ parfor q = 1 : Q ^ 6
     if all(idxs_cell{q}([3,1,2]) ~= idxs_cell{q}([6,5,4]))
         PEP_MGF(q) = get_PEP_symbol(symbols_base{q}, symbols_alt{q}, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi);
     end
-    if mod(q, interval) == 0 
-        disp([num2str(q / interval), '% completed!'])
-    end
 end
 matlabpool close
 toc;
