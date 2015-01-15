@@ -8,21 +8,20 @@ type_mod = 'QAM';
 pwr = 1;
 X = get_constellation(Nbps, type_mod, pwr);
 
-%% 2. Generate all the Q ^ 6 index vectors [p, q, i, k, j, l]' (or equavilently [p, q, a, b, c, d]')
-% Generate all the Q ^ 6 index vectors [i, j, p, k, l, q]' (or equavilently [a, c, p, b, d, q]')
+%% 2. Generate all the Q ^ 6 index vectors [p, i, j, q, k, l]' (or equavilently [p, a, c, q, b, d]')
 Q = 2 ^ Nbps;
 idxs = zeros(6, Q ^ 6);
 for q = 0 : Q ^ 6 - 1
     q_residual = q;
-    for d = 1 : 6
+    for d = 6 : -1 : 1
         idxs(d, q + 1) = mod(q_residual, Q);
         q_residual = floor(q_residual / Q);
     end
 end
 idxs = idxs + 1;
 
-symbols_base = num2cell(X(idxs([3, 1, 2], :)), 1); % The actually transmitted 3 symbols
-symbols_alt = num2cell(X(idxs([6, 5, 4], :)), 1); % The alternative 3 symbols
+symbols_base = num2cell(X(idxs(1 : 3, :)), 1); % The actually transmitted 3 symbols
+symbols_alt = num2cell(X(idxs(4 : 6, :)), 1); % The alternative 3 symbols
 
 %% 3. Channel settings (Let us try AWGN first)
 channel = 'AWGN'; % Channel model, can be specified as AWGN, Rayleigh, Rician, Rayleigh_imp, Rician_imp
