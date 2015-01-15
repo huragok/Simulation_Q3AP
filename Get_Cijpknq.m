@@ -3,7 +3,7 @@ close all;
 clc;
 
 %% 1. Generate the Gray mapped constellation
-Nbps = 2;
+Nbps = 4;
 type_mod = 'QAM';
 pwr = 1;
 X = get_constellation(Nbps, type_mod, pwr);
@@ -64,7 +64,7 @@ PEP_MGF = NaN(1, Q ^ 6); % PEP computed with MGF method
 idxs_cell = num2cell(idxs, 1);
 interval = floor(Q ^ 6 / 100);
 tic;
-matlabpool open 4
+matlabpool open 4 % My computers has a Core i7-4790 CPU with 4 cores and it takes ~8000 sec. If your computer has more cores it is possible to open more thread to further speed it up
 parfor q = 1 : Q ^ 6
     if all(idxs_cell{q}([3,1,2]) ~= idxs_cell{q}([6,5,4]))
         PEP_MGF(q) = get_PEP_symbol(symbols_base{q}, symbols_alt{q}, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi);
