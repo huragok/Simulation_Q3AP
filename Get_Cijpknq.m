@@ -50,8 +50,8 @@ elseif strcmp(channel, 'Rician_imp') % Rician fading channel with perfect CSIR
 else
     error('Wrong channel specified!')
 end
-Eb2N0 = 5; % Eb/N0 in dB
-sigma2_v = pwr / Nbps * 10 ^ (Eb2N0 / 10);
+Eb2N0 = 0; % Eb/N0 in dB
+sigma2_v = pwr / (Nbps * 10 ^ (Eb2N0 / 10));
 
 %% 4. Compute PEP for the symbols
 N = 64;
@@ -79,7 +79,7 @@ PEP_MGF_bit = zeros(1, Q ^ 6); % PEP computed with MGF method
 
 for q = 1 : Q ^ 6
     if ~isnan(PEP_MGF(q))
-        PEP_MGF_bit(q) = PEP_MGF(q) * B(idxs_cell{q}(1), idxs_cell{q}(2)) / Nbps;
+        PEP_MGF_bit(q) = PEP_MGF(q) * B(idxs_cell{q}(1), idxs_cell{q}(2)) / Q;
     end
 end
 

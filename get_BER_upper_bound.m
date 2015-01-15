@@ -1,5 +1,5 @@
-function p = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
-%   p = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
+function BER = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
+%   BER = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
 %   Compute the BER upper bound given the mapping scheme and the channel
 %   conditions
 % _________________________________________________________________________
@@ -21,7 +21,7 @@ function p = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N
 %       xi:         scalar, parameters in the numerical integration that
 %                   must ensures convergence. 1/4 is recommended
 %	Outputs:
-%		p:			scalar, the upper bound of BER computed with pairwise
+%		BER:		scalar, the upper bound of BER computed with pairwise
 %                   error probability 
 % _________________________________________________________________________
 % Author: Wenhao Wu
@@ -34,3 +34,20 @@ function p = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N
 %       packet re-transmission diversity. Ph.D. thesis, Dept. Elect. Eng.,
 %       UC Davis, CA, 2004.
 % _________________________________________________________________________
+
+Q = length(X);
+Nbps = log2(Q); 
+B = get_n_diff_bits(Nbps);
+
+g = zeros(Q); %g[p, q] is a pair wise error probability (in terms of bits) between symbol p and q
+for p = 1 : Q
+    x = X([p; map(:, p)]); % The actually transmitted 3 symbols
+    for q = 1 : Q
+        if p ~= q
+            y = X([q; map(:, q)]); % The alternative 3 symbols
+            g(p, q) = B(p, q) * get_PEP_symbol(x, y, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi) / Q;
+        end
+    end
+end
+
+BER = sum(sum(g));
