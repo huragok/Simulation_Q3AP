@@ -76,20 +76,3 @@ delta = abs((x(1) - y(1)) * h0 - y(1) * eps0 + v0) .^ 2 ...
       + abs((x(2) - y(2)) * h1 + (x(3) - y(3)) * h2 - y(2) * eps1 - y(3) * eps2 + v1) .^ 2 ...
       - abs(-x(2) * eps1 - x(3) * eps2 + v1) .^ 2;
 end
-
-function r = crandn(mu, sigma2, M)
-%   r = crandn(mu, sigma2, M)
-%   Complex circularly symmetric Gaussian random variable generator.
-% _____________________________________________________________________________
-%	Inputs:
-% 		mu:     scalar, the mean value of the complex Gaussian variable
-%       sigma2: scalar, the covariance of the complex Gaussian variable,
-%               equally divided between the real and the image part
-%       M:      scalar, the number of random delta to generate
-%   Outputs:
-%		r:      M-by-1 vector, the randomly generated complex Gaussian
-%               random variables
-% _____________________________________________________________________________
-
-r = mu + sqrt(sigma2 / 2) * (randn(M, 1) + 1j * randn(M, 1));
-end
