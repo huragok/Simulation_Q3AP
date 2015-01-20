@@ -59,7 +59,7 @@ for q = 1 : Q
     r = zeros(2, M);
     r(1, :) = h_est(1, :) * constellation(1, q);
     r(2, :) = sum(h_est(2 : 3, :) .* (constellation(2 : 3, q) * ones(1, M)));
-    d(q, :) = sum((y - r) .^ 2);
+    d(q, :) = sum(abs(y - r) .^ 2);
 end
 [~, i_symbols_demod] = min(d);
 

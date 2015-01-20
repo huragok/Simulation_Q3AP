@@ -39,13 +39,16 @@ elseif strcmp(channel, 'Rician_imp') % Rician fading channel with perfect CSIR
 else
     error('Wrong channel specified!')
 end
-Eb2N0 = 0; % Eb/N0 in dB
+Eb2N0 = 6; % Eb/N0 in dB
 sigma2_v = pwr / (Nbps * 10 ^ (Eb2N0 / 10));
 
 %% 3. Compute the BER
-map = [1 : Q; 1 : Q];
-M = 10000; % scalar, the number of ML decoding carried out
+map = [5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0;
+       5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0] + 1;
+%map = [1 : Q; 1 : Q];
+M = 500; % scalar, the number of ML decoding carried out
 
+tic;
 %% 4. Generate the channels and the received symbols for the demodulator
 constellation = X([1 : Q; map]); % The constellation vectors (for all 3 transmissions)
 i_symbols_mod = unidrnd(Q, [1, M]) - 1; % The symbol index (0 ~ Q-1) of the actually transmitted symbols
@@ -73,7 +76,7 @@ for q = 1 : Q
     r = zeros(2, M);
     r(1, :) = h_est(1, :) * constellation(1, q);
     r(2, :) = sum(h_est(2 : 3, :) .* (constellation(2 : 3, q) * ones(1, M)));
-    d(q, :) = sum((y - r) .^ 2);
+    d(q, :) = sum(abs(y - r) .^ 2);
 end
 [~, i_symbols_demod] = min(d);
 i_symbols_demod = i_symbols_demod - 1;
@@ -85,3 +88,4 @@ for m = 1 : M
     n_diff_bits(m) = B(i_symbols_mod(m) + 1, i_symbols_demod(m) + 1);
 end
 BER = sum(n_diff_bits) / (M * Nbps)
+toc;
