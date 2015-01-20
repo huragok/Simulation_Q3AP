@@ -39,14 +39,17 @@ elseif strcmp(channel, 'Rician_imp') % Rician fading channel with perfect CSIR
 else
     error('Wrong channel specified!')
 end
-Eb2N0 = 0; % Eb/N0 in dB
+Eb2N0 = 4; % Eb/N0 in dB
 sigma2_v = pwr / (Nbps * 10 ^ (Eb2N0 / 10));
 
 %% 3. Compute the BER
-N = 3000;
+N = 1000;
 xi = 1 / 4;
+M = 10000;
 tic;
 BER_upperbound = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
+BER = get_BER(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, M)
 map_uniform = [1 : Q; 1 : Q];
 BER_upperbound_uniform = get_BER_upper_bound(X, map_uniform, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
+BER_uniform = get_BER(X, map_uniform, mu_h, sigma2_h, sigma2_eps, sigma2_v, M)
 toc;

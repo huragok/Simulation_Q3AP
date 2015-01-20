@@ -44,7 +44,7 @@ sigma2_v = pwr / (Nbps * 10 ^ (Eb2N0 / 10));
 
 %% 3. Compute the BER
 map = [1 : Q; 1 : Q];
-M = 500; % scalar, the number of ML decoding carried out
+M = 10000; % scalar, the number of ML decoding carried out
 
 %% 4. Generate the channels and the received symbols for the demodulator
 constellation = X([1 : Q; map]); % The constellation vectors (for all 3 transmissions)
@@ -62,18 +62,21 @@ for i_transmission = 1 : 3
 end
 h_est = h + delta_h; % The estimated channels
 
-y = h .* s + crandn(0, sigma2_v, 3, M); % The received signals
+y = zeros(2, M);
+y(1, :) = h(1, :) .* s(1, :);
+y(2, :) = sum(h(2 : 3, :) .* s(2 : 3, :), 1);
+y = y + crandn(0, sigma2_v, 2, M); % The received signals
 
 %% 5. Run the ML demodulator
-i_symbols_demod = zeros(1, M);
-for m = 1 : M % Let us do ML decoding
-    d = zeros(1, Q); % The distance to each constellation point
-    for q = 1 : Q
-        d(q) = norm(y(:, m) - h_est(:, m) .* constellation(:, q));
-    end
-    [~, q_min] = min(d);
-    i_symbols_demod(m) = q_min - 1;
+d = zeros(Q, M);
+for q = 1 : Q
+    r = zeros(2, M);
+    r(1, :) = h_est(1, :) * constellation(1, q);
+    r(2, :) = sum(h_est(2 : 3, :) .* (constellation(2 : 3, q) * ones(1, M)));
+    d(q, :) = sum((y - r) .^ 2);
 end
+[~, i_symbols_demod] = min(d);
+i_symbols_demod = i_symbols_demod - 1;
 
 %% Count BER
 B = get_n_diff_bits(Nbps);
@@ -81,4 +84,4 @@ n_diff_bits = zeros(1, M);
 for m = 1 : M
     n_diff_bits(m) = B(i_symbols_mod(m) + 1, i_symbols_demod(m) + 1);
 end
-BER = sum(n_diff_bits) / (M * Nbps);
+BER = sum(n_diff_bits) / (M * Nbps)
