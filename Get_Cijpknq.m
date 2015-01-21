@@ -3,7 +3,7 @@ close all;
 clc;
 
 %% 1. Generate the Gray mapped constellation
-Nbps = 4;
+Nbps = 2;
 type_mod = 'QAM';
 pwr = 1;
 X = get_constellation(Nbps, type_mod, pwr);
@@ -29,6 +29,11 @@ if strcmp(channel, 'AWGN') % AWGN channel
     mu_h = [1; 1; 1];
 	sigma2_h = [0; 0; 0];
 	sigma2_eps = [0; 0; 0];
+    
+    Eb2N0 = (-2 : 1 : 7); % Eb/N0 in dB
+    N = [100, 100, 100, 100, 100, 100, 100, 100, 100, 100]; % Number of serial expansion
+    %N = [100, 200, 200, 300, 300, 400, 400, 800, 800, 1500]; % Number of serial expansion
+    n_Eb2N0 = length(Eb2N0);
 elseif strcmp(channel, 'Rayleigh') % Rayleigh fading channel with perfect CSIR
     mu_h = [0; 0; 0];
     sigma2_h = [1; 1; 1];
@@ -50,43 +55,44 @@ elseif strcmp(channel, 'Rician_imp') % Rician fading channel with perfect CSIR
 else
     error('Wrong channel specified!')
 end
-Eb2N0 = 0; % Eb/N0 in dB
-sigma2_v = pwr / (Nbps * 10 ^ (Eb2N0 / 10));
+
+sigma2_v = pwr ./ (Nbps * 10 .^ (Eb2N0 / 10));
 
 %% 4. Compute PEP for the symbols
-N = 64;
 xi = 1 / 4;
-tic;
-
-PEP_MGF = NaN(1, Q ^ 6); % PEP computed with MGF method
 
 idxs_cell = num2cell(idxs, 1);
-interval = floor(Q ^ 6 / 100);
+B = get_n_diff_bits(Nbps);
+
 tic;
 matlabpool open 4 % My computers has a Core i7-4790 CPU with 4 cores and it takes ~8000 sec. If your computer has more cores it is possible to open more thread to further speed it up
-parfor q = 1 : Q ^ 6
-    if all(idxs_cell{q}([3,1,2]) ~= idxs_cell{q}([6,5,4]))
-        PEP_MGF(q) = get_PEP_symbol(symbols_base{q}, symbols_alt{q}, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi);
+for i_Eb2N0 = 1 : n_Eb2N0
+    tic;
+    sigma2_v_tmp = sigma2_v(i_Eb2N0);
+    N_tmp = N(i_Eb2N0);
+    
+    PEP_MGF = NaN(1, Q ^ 6); % PEP computed with MGF method
+    
+    parfor q = 1 : Q ^ 6
+        if all(idxs_cell{q}(1 : 3) ~= idxs_cell{q}(4 : 6))
+            PEP_MGF(q) = get_PEP_symbol(symbols_base{q}, symbols_alt{q}, mu_h, sigma2_h, sigma2_eps, sigma2_v_tmp, N_tmp, xi);
+        end
     end
+    
+    PEP_MGF_bit = zeros(1, Q ^ 6); % PEP computed with MGF method
+    for q = 1 : Q ^ 6
+        if ~isnan(PEP_MGF(q))
+            PEP_MGF_bit(q) = PEP_MGF(q) * B(idxs_cell{q}(1), idxs_cell{q}(2)) / Q;
+        end
+    end
+    
+    filename = ['q3aptest_', num2str(Q), type_mod, '_', num2str(Eb2N0(i_Eb2N0)), 'dB.data'];
+    fileID = fopen(filename, 'w+');
+    fprintf(fileID, '  %18.16e', PEP_MGF_bit);
+    toc;
+    fclose(fileID);
+    
+    disp(['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB completed']);
 end
 matlabpool close
-toc;
 
-
-%% 5. Compute PEP for the bits
-B = get_n_diff_bits(Nbps);
-PEP_MGF_bit = zeros(1, Q ^ 6); % PEP computed with MGF method
-
-for q = 1 : Q ^ 6
-    if ~isnan(PEP_MGF(q))
-        PEP_MGF_bit(q) = PEP_MGF(q) * B(idxs_cell{q}(1), idxs_cell{q}(2)) / Q;
-    end
-end
-
-%% 6. Write the result to files using the same format as in http://www.seas.upenn.edu/~hahn/#E
-filename = ['q3aptest_', num2str(Q), type_mod, '_', num2str(Eb2N0), 'dB.data'];
-fileID = fopen(filename, 'w+');
-tic;
-fprintf(fileID, '  %18.16e', PEP_MGF_bit);
-toc;
-fclose(fileID);
