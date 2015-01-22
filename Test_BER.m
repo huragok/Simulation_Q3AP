@@ -16,11 +16,25 @@ if strcmp(channel, 'AWGN') % AWGN channel
 	sigma2_h = [0; 0; 0];
 	sigma2_eps = [0; 0; 0];
     
-    map = [5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0;
-           5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0] + 1; % A very simple remap based on "Trans-Modulation in Wireless Relay Networks"
     Eb2N0 = (-2 : 1 : 7); % Eb/N0 in dB
     N = [100, 200, 200, 300, 300, 400, 400, 800, 800, 1500]; % Number of serial expansion
     n_Eb2N0 = length(Eb2N0);
+    
+    map_hans = cell(n_Eb2N0, 1);
+    map_karim = cell(n_Eb2N0, 1);
+    map_hans{1} = [14, 10, 13, 12, 7, 1, 8, 11, 6, 2, 5, 4, 15, 9, 0, 3;
+                   11, 13, 8, 9, 10, 14, 15, 4, 3, 5, 0, 1, 2, 6, 7, 12] + 1;
+    map_hans{2} = [15, 10, 13, 8, 11, 6, 9, 4, 3, 5, 1, 7, 2, 12, 0, 14;
+                   10, 7, 8, 5, 14, 9, 12, 11, 6, 2, 4, 0, 15, 3, 13, 1] + 1;
+    map_hans{3} = [11, 15, 9, 13, 14, 8, 12, 10, 7, 3, 5, 1, 2, 6, 0, 4;
+                   5, 10, 7, 8, 14, 9, 12, 11, 6, 3, 4, 1, 13, 2, 15, 0] + 1;
+    map_hans{4} = [14, 15, 12, 9, 10, 8, 7, 11, 13, 1, 0, 3, 6, 2, 4, 5;
+                   14, 11, 12, 13, 5, 9, 8, 10, 2, 1, 15, 3, 6, 7, 4, 0] + 1;
+    map_karim{1} = [5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0;
+                    5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0] + 1; % A very simple remap based on "Trans-Modulation in Wireless Relay Networks"
+    map_karim{2} = map_karim{1};
+    map_karim{3} = map_karim{1};
+    map_karim{4} = map_karim{1};
 elseif strcmp(channel, 'Rayleigh') % Rayleigh fading channel with perfect CSIR
     mu_h = [0; 0; 0];
     sigma2_h = [1; 1; 1];
@@ -51,30 +65,41 @@ map_uniform = [1 : Q; 1 : Q];
 
 BER_upperbound_uniform = zeros(n_Eb2N0, 1);
 BER_uniform = zeros(n_Eb2N0, 1);
-BER_upperbound = zeros(n_Eb2N0, 1);
-BER = zeros(n_Eb2N0, 1);
-for i_Eb2N0 = 1 : n_Eb2N0
+BER_upperbound_hans = zeros(n_Eb2N0, 1);
+BER_hans = zeros(n_Eb2N0, 1);
+BER_upperbound_karim = zeros(n_Eb2N0, 1);
+BER_karim = zeros(n_Eb2N0, 1);
+for i_Eb2N0 = 1 : 4
     tic;
     BER_upperbound_uniform(i_Eb2N0) = get_BER_upper_bound(X, map_uniform, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), N(i_Eb2N0), xi);
     BER_uniform(i_Eb2N0) = get_BER(X, map_uniform, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), M);
-    BER_upperbound(i_Eb2N0) = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), N(i_Eb2N0), xi);
-    BER(i_Eb2N0) = get_BER(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), M);
+    BER_upperbound_hans(i_Eb2N0) = get_BER_upper_bound(X, map_hans{i_Eb2N0}, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), N(i_Eb2N0), xi);
+    BER_hans(i_Eb2N0) = get_BER(X, map_hans{i_Eb2N0}, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), M);
+    BER_upperbound_karim(i_Eb2N0) = get_BER_upper_bound(X, map_karim{i_Eb2N0}, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), N(i_Eb2N0), xi);
+    BER_karim(i_Eb2N0) = get_BER(X, map_karim{i_Eb2N0}, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), M);
+    
     disp(['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB']);
     disp(['Uniform mapping, BER upperbound = ', num2str(BER_upperbound_uniform(i_Eb2N0))]);
     disp(['Uniform mapping, BER = ', num2str(BER_uniform(i_Eb2N0))]);
-    disp(['Simple remapping, BER upperbound = ', num2str(BER_upperbound(i_Eb2N0))]);
-    disp(['Simple remapping, BER = ', num2str(BER(i_Eb2N0))]);
+    disp(['Hans remapping, BER upperbound = ', num2str(BER_upperbound_hans(i_Eb2N0))]);
+    disp(['Hans remapping, BER = ', num2str(BER_hans(i_Eb2N0))]);
+    disp(['Karim remapping, BER upperbound = ', num2str(BER_upperbound_karim(i_Eb2N0))]);
+    disp(['Karim remapping, BER = ', num2str(BER_karim(i_Eb2N0))]);
     toc;
+    
+    plot_mapping(X, map_hans{i_Eb2N0}(1, :), ['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB, S-D']);
+    plot_mapping(X, map_hans{i_Eb2N0}(1, :), ['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB, R-D']);
 end
-%BER_upperbound = get_BER_upper_bound(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, N, xi)
-%BER = get_BER(X, map, mu_h, sigma2_h, sigma2_eps, sigma2_v, M)
 
 %% 4. Visualization
+range = 1 : 4;
 figure;
-semilogy(Eb2N0, BER_upperbound_uniform, 'bo--', 'linewidth', 2), hold on;
-semilogy(Eb2N0, BER_uniform, 'bo-', 'linewidth', 2), hold on;
-semilogy(Eb2N0, BER_upperbound, 'rs--', 'linewidth', 2), hold on;
-semilogy(Eb2N0, BER, 'rs-', 'linewidth', 2), hold on;
+semilogy(Eb2N0(range), BER_upperbound_uniform(range), 'bo--', 'linewidth', 2), hold on;
+semilogy(Eb2N0(range), BER_uniform(range), 'bo-', 'linewidth', 2), hold on;
+semilogy(Eb2N0(range), BER_upperbound_karim(range), 'rs--', 'linewidth', 2), hold on;
+semilogy(Eb2N0(range), BER_karim(range), 'rs-', 'linewidth', 2), hold on;
+semilogy(Eb2N0(range), BER_upperbound_hans(range), 'm^--', 'linewidth', 2), hold on;
+semilogy(Eb2N0(range), BER_hans(range), 'm^-', 'linewidth', 2), hold on;
 grid on;
 set(gca, 'Fontsize', 16);
-xlabel('E_b/N_0(dB)'), ylabel('BER'), legend('Uniform bound', 'Uniform sim.', 'Remap bound', 'Remap sim.');
+xlabel('E_b/N_0(dB)'), ylabel('BER'), legend('Uniform bound', 'Uniform sim.', 'Karim bound', 'Karim sim.', 'Hans bound', 'Hans sim.');
