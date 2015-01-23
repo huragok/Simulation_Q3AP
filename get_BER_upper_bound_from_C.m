@@ -1,4 +1,4 @@
-function get_BER_upper_bound_from_C(map, C)
+function BER = get_BER_upper_bound_from_C(map, C)
 %   BER = get_BER_upper_bound_from_C(map, C)
 %   Compute the BER upper bound given the mapping scheme and the cost
 %   matrix
@@ -28,10 +28,10 @@ Q = size(map, 2);
 map_complete = [1 : Q; map] - 1; % The complete mapping of all the 3 transmissions, each row is a permutation of 0 : Q - 1
 
 BER = 0;
-for p = 1 : q
-    for q = 1 : q
+for p = 1 : Q
+    for q = 1 : Q
         % Compute the index corresponding to the 6-D coordinate (p, u(p), v(p), q, u(q), v(q))
-        idx = Q ^ 6 - Q .^ (5 : -1 : 0) * [map_complete(:, p); map_complete(:, q)];
+        idx = Q .^ (5 : -1 : 0) * [map_complete(:, p); map_complete(:, q)] + 1;
         BER = BER + C(idx);
     end
 end
