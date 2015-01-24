@@ -31,7 +31,7 @@ BER = 0;
 for p = 1 : Q
     for q = 1 : Q
         % Compute the index corresponding to the 6-D coordinate (p, u(p), v(p), q, u(q), v(q))
-        idx = Q .^ (5 : -1 : 0) * [map_complete(:, p); map_complete(:, q)] + 1;
+        idx = Q .^ [1, 3, 5, 0, 2, 4] * [map_complete(:, p); map_complete(:, q)] + 1;
         BER = BER + C(idx);
     end
 end

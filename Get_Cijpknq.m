@@ -3,7 +3,7 @@ close all;
 clc;
 
 %% 1. Generate the Gray mapped constellation
-Nbps = 3;
+Nbps = 4;
 type_mod = 'QAM';
 pwr = 1;
 X = get_constellation(Nbps, type_mod, pwr);
@@ -11,10 +11,11 @@ X = get_constellation(Nbps, type_mod, pwr);
 %% 2. Generate all the Q ^ 6 index vectors [p, i, j, q, k, l]' (or equavilently [p, a, c, q, b, d]')
 Q = 2 ^ Nbps;
 idxs = zeros(6, Q ^ 6);
+order = [4, 1, 5, 2, 6, 3];
 for q = 0 : Q ^ 6 - 1
     q_residual = q;
-    for d = 6 : -1 : 1
-        idxs(d, q + 1) = mod(q_residual, Q);
+    for d = 1 : 6
+        idxs(order(d), q + 1) = mod(q_residual, Q);
         q_residual = floor(q_residual / Q);
     end
 end
@@ -30,8 +31,8 @@ if strcmp(channel, 'AWGN') % AWGN channel
 	sigma2_h = [0; 0; 0];
 	sigma2_eps = [0; 0; 0];
     
-    Eb2N0 = (-2); % Eb/N0 in dB
-    N = [100]; % Number of serial expansion
+    Eb2N0 = (-2 : 1 : 7); % Eb/N0 in dB
+    N = [100, 200, 200, 300, 300, 400, 400, 800, 800, 1500]; % Number of serial expansion
     n_Eb2N0 = length(Eb2N0);
 elseif strcmp(channel, 'Rayleigh') % Rayleigh fading channel with perfect CSIR
     mu_h = [0; 0; 0];
@@ -65,7 +66,7 @@ B = get_n_diff_bits(Nbps);
 
 tic;
 matlabpool open 4 % My computers has a Core i7-4790 CPU with 4 cores and it takes ~8000 sec. If your computer has more cores it is possible to open more thread to further speed it up
-for i_Eb2N0 = 1 : length(Eb2N0)
+for i_Eb2N0 = 1 : 4
     tic;
     sigma2_v_tmp = sigma2_v(i_Eb2N0);
     N_tmp = N(i_Eb2N0);
