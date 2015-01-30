@@ -2,6 +2,7 @@ clear all;
 close all;
 clc;
 
+addpath('./functions/')
 %% 1. Generate the Gray mapped constellation
 Nbps = 4;
 type_mod = 'QAM';
@@ -17,7 +18,7 @@ if strcmp(channel, 'AWGN') % AWGN channel
 	sigma2_eps = [0; 0; 0];
     
     Eb2N0 = (-2 : 1 : 7); % Eb/N0 in dB
-    N = [100, 200, 200, 300, 300, 400, 400, 800, 800, 1500]; % Number of serial expansion
+    N = [100, 200, 200, 300, 400, 400, 400, 800, 800, 1500]; % Number of serial expansion
     n_Eb2N0 = length(Eb2N0);
     
     map_hans = cell(n_Eb2N0, 1);
@@ -30,11 +31,14 @@ if strcmp(channel, 'AWGN') % AWGN channel
                    5, 4, 15, 14, 9, 8, 11, 10, 13, 12, 7, 6, 1, 0, 3, 2] + 1;
     map_hans{4} = [13, 12, 5, 6, 11, 8, 9, 10, 7, 4, 15, 14, 3, 0, 1, 2;
                    7, 4, 15, 14, 9, 8, 11, 10, 13, 12, 5, 6, 1, 0, 3, 2] + 1;
+    map_hans{5} = [15, 11, 13, 3, 6, 2, 12, 8, 5, 9, 7, 1, 4, 0, 14, 10;
+                   5, 9, 7, 1, 14, 2, 4, 8, 15, 11, 13, 3, 12, 0, 6, 10] + 1;
     map_karim{1} = [5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0;
                     5, 6, 7, 4, 9, 10, 11, 8, 13, 14, 15, 12, 1, 2, 3, 0] + 1; % A very simple remap based on "Trans-Modulation in Wireless Relay Networks"
     map_karim{2} = map_karim{1};
     map_karim{3} = map_karim{1};
     map_karim{4} = map_karim{1};
+    map_karim{5} = map_karim{1};
 elseif strcmp(channel, 'Rayleigh') % Rayleigh fading channel with perfect CSIR
     mu_h = [0; 0; 0];
     sigma2_h = [1; 1; 1];
@@ -69,7 +73,8 @@ BER_upperbound_hans = zeros(n_Eb2N0, 1);
 BER_hans = zeros(n_Eb2N0, 1);
 BER_upperbound_karim = zeros(n_Eb2N0, 1);
 BER_karim = zeros(n_Eb2N0, 1);
-for i_Eb2N0 = 1 : 4
+matlabpool open 4
+parfor i_Eb2N0 = 1 : 5
     tic;
     BER_upperbound_uniform(i_Eb2N0) = get_BER_upper_bound(X, map_uniform, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), N(i_Eb2N0), xi);
     BER_uniform(i_Eb2N0) = get_BER(X, map_uniform, mu_h, sigma2_h, sigma2_eps, sigma2_v(i_Eb2N0), M);
@@ -87,12 +92,13 @@ for i_Eb2N0 = 1 : 4
     disp(['Karim remapping, BER = ', num2str(BER_karim(i_Eb2N0))]);
     toc;
     
-    plot_mapping(X, map_hans{i_Eb2N0}(1, :), ['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB, S-D']);
-    plot_mapping(X, map_hans{i_Eb2N0}(1, :), ['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB, R-D']);
+    %plot_mapping(X, map_hans{i_Eb2N0}(1, :), ['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB, S-D']);
+    %plot_mapping(X, map_hans{i_Eb2N0}(2, :), ['Eb/N0 = ', num2str(Eb2N0(i_Eb2N0)), 'dB, R-D']);
 end
+matlabpool close
 
 %% 4. Visualization
-range = 1 : 4;
+range = 1 : 5;
 figure;
 semilogy(Eb2N0(range), BER_upperbound_uniform(range), 'bo--', 'linewidth', 2), hold on;
 semilogy(Eb2N0(range), BER_uniform(range), 'bo-', 'linewidth', 2), hold on;

@@ -2,8 +2,9 @@ clear all;
 close all;
 clc;
 
+addpath('./functions/');
 %% 1. Generate the Gray mapped constellation
-Nbps = 4;
+Nbps = 1;
 type_mod = 'QAM';
 pwr = 1;
 X = get_constellation(Nbps, type_mod, pwr);
