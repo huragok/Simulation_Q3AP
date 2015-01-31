@@ -1,2 +1,8 @@
 *.asv
 *.data
+.metadata
+*.cproject
+*.project
+*.swp
+*~
+Debug
