@@ -133,7 +133,7 @@ namespace relayHARQ{
     void next(std::vector<unsigned int> & pijqkl, unsigned int Q, const unsigned int order[])
     {
         unsigned int d = 0;
-        while (pijqkl[order[d]] == Q - 1 and d < 6)
+        while (d < 6 && pijqkl[order[d]] == Q - 1)
         {
             pijqkl[order[d]] = 0;
             d++;
@@ -142,7 +142,6 @@ namespace relayHARQ{
         {
             pijqkl[order[d]]++;
         }
-
         return;
     }
 
