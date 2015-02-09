@@ -19,7 +19,7 @@ int main()
      */
     double K = 10;
     double amp_RD2SD = 1;
-    unsigned int Nbps = 2; // Number of bits per symbol, 1 for BPSK, 2 for QPSK, 3 for 8QAM, 4 for 16QAM and 5 for 32QAM
+    unsigned int Nbps = 3; // Number of bits per symbol, 1 for BPSK, 2 for QPSK, 3 for 8QAM, 4 for 16QAM and 5 for 32QAM
     double Eb2N0 = 0; // Eb/N0 in dB
     unsigned int N0 = 200;
     double xi0 = 0.25;
@@ -47,7 +47,7 @@ int main()
 
     clock_gettime(CLOCK_MONOTONIC, &start);
 
-    #pragma omp parallel
+    #pragma omp parallel num_threads(8) firstprivate(mu_h, sigma2_h, sigma2_eps, constellation, sigma2_v, N, xi, Q, B) shared(PEP_MGF_bit)
     {
         #pragma omp single
         {
