@@ -4,7 +4,7 @@ clc;
 
 addpath('./functions/');
 %% 1. Generate the Gray mapped constellation
-Nbps = 2;
+Nbps = 3;
 type_mod = 'QAM';
 pwr = 1;
 X = get_constellation(Nbps, type_mod, pwr);
