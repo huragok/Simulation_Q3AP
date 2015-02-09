@@ -15,6 +15,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <string>
 
 namespace relayHARQ {
 
@@ -35,7 +36,38 @@ namespace relayHARQ {
     /**
      * Channel types
      */
-    enum Channel {AWGN, RAYLEIGH};
+    enum Channel {AWGN, RAYLEIGH, RICIAN};
+
+    /**
+     * The class that defines the a set of test parameter
+     */
+    class TestParam
+    {
+    public:
+        Channel type;
+        arma::cx_vec mu_h;
+        arma::cx_vec sigma2_h;
+        arma::cx_vec sigma2_eps;
+        unsigned int Nbps;
+        std::vector<std::complex<double> > constellation;
+        double sigma2_v;
+        unsigned int N;
+        double xi;
+        std::string saved_file;
+        /*
+         * The fundamental constructor
+         */
+        TestParam(Channel type, arma::cx_vec mu_h, arma::cx_vec sigma2_h, arma::cx_vec sigma2_eps, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file);
+
+        /*
+         * The simple perfect Rician channel constructor
+         */
+        TestParam(double K, double amp_RD2SD, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file);
+    };
+
+    /**
+     * The function to
+     */
 
     /**
      * Compute the moment generating function (MGF) for the quadaratic form of Gaussian random variables z'Az.

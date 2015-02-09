@@ -8,6 +8,65 @@
 
 namespace relayHARQ{
 
+
+    TestParam::TestParam(Channel type, arma::cx_vec mu_h, arma::cx_vec sigma2_h, arma::cx_vec sigma2_eps, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file)
+        : type(type), mu_h(mu_h), sigma2_h(sigma2_h), sigma2_eps(sigma2_eps), Nbps(Nbps), sigma2_v(1.0 / (Nbps * pow(10, Eb2N0 / 10))), N(N), xi(xi), saved_file(saved_file)
+    {
+        switch (Nbps)
+        {
+            case 1:
+                constellation = QAM2;
+                break;
+            case 2:
+                constellation = QAM4;
+                break;
+            case 3:
+                constellation = QAM8;
+                break;
+            case 4:
+                constellation = QAM16;
+                break;
+            case 5:
+                constellation = QAM32;
+                break;
+            default:
+                std::cerr << "Nbps set incorrectly!" << std::endl;
+                exit(1);
+        }
+
+    }
+
+    TestParam::TestParam(double K, double amp_RD2SD, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file)
+        : mu_h(3), sigma2_h(3), sigma2_eps(3, arma::fill::zeros), Nbps(Nbps), sigma2_v(1.0 / (Nbps * pow(10, Eb2N0 / 10))), N(N), xi(xi), saved_file(saved_file)
+    {
+        type = RICIAN;
+        double pwr_los = K / (K + 1);
+        mu_h(0) = sqrt(pwr_los), mu_h(1) = sqrt(pwr_los), mu_h(2) = sqrt(pwr_los) * amp_RD2SD;
+        sigma2_h(0) = 1 - pwr_los, sigma2_h(1) = 1 - pwr_los, sigma2_h(2) = (1 - pwr_los) * pow(amp_RD2SD, 2);
+
+        switch (Nbps)
+        {
+            case 1:
+                constellation = QAM2;
+                break;
+            case 2:
+                constellation = QAM4;
+                break;
+            case 3:
+                constellation = QAM8;
+                break;
+            case 4:
+                constellation = QAM16;
+                break;
+            case 5:
+                constellation = QAM32;
+                break;
+            default:
+                std::cerr << "Nbps set incorrectly!" << std::endl;
+                exit(1);
+        }
+    }
+
     arma::cx_vec get_Psi_Gaussian(arma::cx_vec omega, arma::cx_vec mu, arma::cx_mat R, arma::cx_mat A)
     {
         unsigned int N = omega.n_elem; // Size of serial expansion
