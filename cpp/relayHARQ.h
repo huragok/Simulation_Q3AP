@@ -54,6 +54,12 @@ namespace relayHARQ {
         unsigned int N;
         double xi;
         std::string saved_file;
+
+        /**
+         * The default constructor
+         */
+        TestParam(){};
+
         /*
          * The fundamental constructor
          */
@@ -62,7 +68,7 @@ namespace relayHARQ {
         /*
          * The simple perfect Rician channel constructor
          */
-        TestParam(double K, double amp_RD2SD, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file);
+        TestParam(double K, std::complex<double> amp_RD2SD, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file);
     };
 
     /**

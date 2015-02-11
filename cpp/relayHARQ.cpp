@@ -36,7 +36,7 @@ namespace relayHARQ{
 
     }
 
-    TestParam::TestParam(double K, double amp_RD2SD, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file)
+    TestParam::TestParam(double K, std::complex<double> amp_RD2SD, unsigned int Nbps, double Eb2N0, unsigned int N, double xi, std::string saved_file)
         : mu_h(3), sigma2_h(3), sigma2_eps(3, arma::fill::zeros), Nbps(Nbps), sigma2_v(1.0 / (Nbps * pow(10, Eb2N0 / 10))), N(N), xi(xi), saved_file(saved_file)
     {
         type = RICIAN;
