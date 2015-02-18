@@ -11,19 +11,7 @@ X = get_constellation(Nbps, type_mod, pwr);
 
 %% 2. Generate all the Q ^ 6 index vectors [p, i, j, q, k, l]' (or equavilently [p, a, c, q, b, d]')
 Q = 2 ^ Nbps;
-idxs = zeros(6, Q ^ 6);
 order = [4, 1, 5, 2, 6, 3];
-for q = 0 : Q ^ 6 - 1
-    q_residual = q;
-    for d = 1 : 6
-        idxs(order(d), q + 1) = mod(q_residual, Q);
-        q_residual = floor(q_residual / Q);
-    end
-end
-idxs = idxs + 1;
-
-symbols_base = num2cell(X(idxs(1 : 3, :)), 1); % The actually transmitted 3 symbols
-symbols_alt = num2cell(X(idxs(4 : 6, :)), 1); % The alternative 3 symbols
 
 %% 3. Channel settings (Let us try AWGN first)
 channel = 'Rician'; % Channel model, can be specified as AWGN, Rayleigh, Rician, Rayleigh_imp, Rician_imp
@@ -65,7 +53,7 @@ sigma2_v = pwr ./ (Nbps * 10 .^ (Eb2N0 / 10));
 %% 4. Compute PEP for the symbols
 xi = 1 / 4;
 
-idxs_cell = num2cell(idxs, 1);
+%idxs_cell = num2cell(idxs, 1);
 B = get_n_diff_bits(Nbps);
 
 tic;
@@ -75,18 +63,14 @@ for i_Eb2N0 = 1 : 1
     sigma2_v_tmp = sigma2_v(i_Eb2N0);
     N_tmp = N(i_Eb2N0);
     
-    PEP_MGF = NaN(1, Q ^ 6); % PEP computed with MGF method
-    
-    parfor q = 1 : Q ^ 6
-        if all(idxs_cell{q}(1 : 3) ~= idxs_cell{q}(4 : 6))
-            PEP_MGF(q) = get_PEP_symbol(symbols_base{q}, symbols_alt{q}, mu_h, sigma2_h, sigma2_eps, sigma2_v_tmp, N_tmp, xi);
-        end
-    end
-    
     PEP_MGF_bit = zeros(1, Q ^ 6); % PEP computed with MGF method
     for q = 1 : Q ^ 6
-        if ~isnan(PEP_MGF(q))
-            PEP_MGF_bit(q) = PEP_MGF(q) * B(idxs_cell{q}(1), idxs_cell{q}(4)) / Q;
+        idxs = get_idxs(q, Q, order);
+        symbols_base = X(idxs(1 : 3)); % The actually transmitted 3 symbols
+        symbols_alt = X(idxs(4 : 6)); % The alternative 3 symbols
+        if all(idxs(1 : 3) ~= idxs(4 : 6))
+            PEP_MGF = get_PEP_symbol(symbols_base, symbols_alt, mu_h, sigma2_h, sigma2_eps, sigma2_v_tmp, N_tmp, xi);
+            PEP_MGF_bit(q) =  PEP_MGF * B(idxs(1), idxs(4)) / Q;
         end
     end
     
