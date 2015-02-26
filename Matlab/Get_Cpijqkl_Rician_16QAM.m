@@ -16,7 +16,7 @@ order = [4, 1, 5, 2, 6, 3];
 %% 3. Channel settings (Let us try AWGN first)
 channel = 'Rician'; % Channel model, can be specified as AWGN, Rayleigh, Rician, Rayleigh_imp, Rician_imp
 K = 10;
-amp = [1, sqrt(2), 2]; % The relative amplitude of the R-D link versus S-D link. Assume that the phase of the Relay and the Source can be perfetly aligned.
+amp = sqrt(2) * exp([pi/12, pi/6, pi/4] * 1j); % The relative amplitude of the R-D link versus S-D link. Assume that the phase of the Relay and the Source can be perfetly aligned.
 Eb2N0 = [-2 : 4]; % Eb/N0 in dB
 N = [100, 200, 200, 300, 400, 400, 400]; % Number of serial expansion
 n_amp = length(amp);
@@ -61,7 +61,7 @@ for i_case = 1 : n_case
     B = get_n_diff_bits(Nbps);
     
     PEP_MGF_bit = zeros(1, Q ^ 6); % PEP computed with MGF method
-    for q = 1 : Q ^ 6
+    parfor q = 1 : Q ^ 6
         idxs = get_idxs(q, Q, order);
         symbols_base = X(idxs(1 : 3)); % The actually transmitted 3 symbols
         symbols_alt = X(idxs(4 : 6)); % The alternative 3 symbols
