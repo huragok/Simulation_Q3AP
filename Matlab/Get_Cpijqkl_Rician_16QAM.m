@@ -15,22 +15,22 @@ order = [4, 1, 5, 2, 6, 3];
 
 %% 3. Channel settings (Let us try AWGN first)
 channel = 'Rician'; % Channel model, can be specified as AWGN, Rayleigh, Rician, Rayleigh_imp, Rician_imp
-K = 10; % K = 1
-%channel_SD = (1 / sqrt(2)) * exp([pi/12, pi/6, pi/4] * 1j); % The relay to destination channel is fixed to be 1 while the phase of the source to relay channel is changed
-channel_SD = [1, 1 / sqrt(2), 1/ 2]; % The relay to destination channel is fixed to be 1 while the amplitude of the source to relay channel is changed
+K = 10; % K = 1;
+amp = sqrt(2) * exp([pi/12, pi/6, pi/4] * 1j); % The relative amplitude of the R-D link versus S-D link. Assume that the phase of the Relay and the Source can be perfetly aligned.
 Eb2N0 = [-2 : 4]; % Eb/N0 in dB
 N = [100, 200, 200, 300, 400, 400, 400]; % Number of serial expansion
+n_amp = length(amp);
 n_Eb2N0 = length(Eb2N0);
 xi = 1 / 4;
 
 test_cases = struct();
 i_case = 0;
-for i_channel_SD = 1 : length(channel_SD)
+for i_amp = 1 : length(amp)
     for i_Eb2N0 = 1 : n_Eb2N0
         i_case = i_case + 1;
         test_cases(i_case).type = 'Rician';
-        test_cases(i_case).mu_h = sqrt(K / (K + 1)) * [channel_SD(i_channel_SD); channel_SD(i_channel_SD); 1];
-        test_cases(i_case).sigma2_h = 1 / (K + 1) * [abs(channel_SD(i_channel_SD))^2; abs(channel_SD(i_channel_SD))^2; 1];
+        test_cases(i_case).mu_h = sqrt(K / (K + 1)) * [1; 1; amp(i_amp)];
+        test_cases(i_case).sigma2_h = 1 / (K + 1) * [1; 1; abs(amp(i_amp)) ^ 2];
         test_cases(i_case).sigma2_eps = zeros(3, 1);
         test_cases(i_case).Nbps = Nbps;
         test_cases(i_case).constellation = X;
